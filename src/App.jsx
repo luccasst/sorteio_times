@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { BrowserRouter, Link, Route, Routes, useNavigate } from "react-router-dom";
 import { equilibrioEsperado, sortearTimes } from "./lib/draw.js";
 import {
   chavesDuplicadas,
@@ -9,7 +10,6 @@ import {
 } from "./lib/players.js";
 import { baixarJson, carregarEstado, lerArquivoJson, salvarEstado } from "./lib/storage.js";
 
-const MODALIDADES = ["Futebol", "Futsal", "Jogo eletrônico"];
 const CORES_TIME = ["#3dd6c6", "#f0c14a", "#ff8b6a", "#7aa2ff", "#c084fc", "#86efac", "#fb7185", "#67e8f9", "#fdba74", "#a3e635"];
 
 const INICIAL = carregarEstado();
@@ -28,6 +28,14 @@ function formatarData(iso) {
 }
 
 export default function App() {
+  return (
+    <BrowserRouter>
+      <Aplicacao />
+    </BrowserRouter>
+  );
+}
+
+function Aplicacao() {
   const [modalidade, setModalidade] = useState(INICIAL?.modalidade ?? "Futebol");
   const [times, setTimes] = useState(INICIAL?.times ?? 4);
   const [niveis, setNiveis] = useState(INICIAL?.niveis ?? 6);
@@ -40,6 +48,7 @@ export default function App() {
   const [modal, setModal] = useState(null);
   const arquivoRef = useRef(null);
   const pronto = useRef(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!pronto.current) {
@@ -103,6 +112,9 @@ export default function App() {
     setHistorico((lista) => [...lista, rodada]);
     setAviso("Times sorteados. A formação foi escolhida entre as combinações com menos repetição.");
     setOcupado(false);
+    if (window.matchMedia("(max-width: 900px)").matches) {
+      navigate("/sorteios");
+    }
   }
 
   function confirmarNovo() {
@@ -200,8 +212,47 @@ export default function App() {
     }
   }
 
+  const painel = (
+    <PainelSorteios
+      historico={historico}
+      exibido={exibido}
+      timesExibidos={timesExibidos}
+      niveisExibidos={niveisExibidos}
+      times={times}
+      niveis={niveis}
+      aviso={aviso}
+      configMudou={configMudou}
+      indiceExibido={indiceExibido}
+      aoMudarRodada={mudarRodada}
+      aoExcluir={confirmarExcluir}
+      aoSelecionar={mostrarRodada}
+    />
+  );
+
   return (
     <div className="pagina">
+      <Routes>
+        <Route
+          path="/sorteios"
+          element={
+            <>
+              <header className="topo topo-sorteios">
+                <div>
+                  <p className="marca">Pelada equilibrada</p>
+                  <h1>Meus Sorteios</h1>
+                </div>
+                <Link to="/" className="botao voltar">
+                  Voltar ao cadastro
+                </Link>
+              </header>
+              {painel}
+            </>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <>
       <header className="topo">
         <div>
           <p className="marca">Pelada equilibrada</p>
@@ -210,19 +261,12 @@ export default function App() {
             Cada time recebe um jogador de cada nível. O sorteio guarda as rodadas e evita repetir os mesmos companheiros.
           </p>
         </div>
-        <div className="modalidades" role="group" aria-label="Modalidade">
-          {MODALIDADES.map((item) => (
-            <button
-              key={item}
-              type="button"
-              className={item === modalidade ? "chip ativo" : "chip"}
-              onClick={() => setModalidade(item)}
-            >
-              {item}
-            </button>
-          ))}
-        </div>
       </header>
+
+      <Link to="/sorteios" className="botao meus-sorteios">
+        Meus Sorteios
+        <span>{historico.length}</span>
+      </Link>
 
       <main className="grade">
         <section className="painel cadastro">
@@ -324,104 +368,12 @@ export default function App() {
           </div>
         </section>
 
-        <section className="painel resultado">
-          <div className="cabeca-resultado">
-            <div>
-              <h2>Times da rodada</h2>
-              <p>
-                {modalidade}
-                {exibido ? ` · ${timesExibidos} times · ${niveisExibidos} níveis` : ` · ${times} times`}
-              </p>
-            </div>
-            <div className="contador" aria-live="polite">
-              <strong>{historico.length}</strong>
-              <span>{historico.length === 1 ? "sorteio realizado" : "sorteios realizados"}</span>
-            </div>
-          </div>
-
-          {aviso && <p className="aviso">{aviso}</p>}
-          {exibido && historico.length > 0 && (
-            <div className="nav-sorteio">
-              <button type="button" onClick={() => mudarRodada(-1)} disabled={indiceExibido <= 0}>
-                Anterior
-              </button>
-              <span>
-                Sorteio {indiceExibido + 1} de {historico.length}
-              </span>
-              <button
-                type="button"
-                onClick={() => mudarRodada(1)}
-                disabled={indiceExibido < 0 || indiceExibido >= historico.length - 1}
-              >
-                Próximo
-              </button>
-            </div>
-          )}
-          {configMudou && (
-            <p className="nota">
-              Configuração deste sorteio: {timesExibidos} times e {niveisExibidos} níveis. A quantidade ao lado vale para o próximo.
-            </p>
-          )}
-
-          {exibido ? (
-            <>
-              <div className="times" key={exibido.id}>
-                {exibido.timesSorteados.map((time, indice) => (
-                  <article key={time.nome} className="cartao-time" style={{ "--cor": CORES_TIME[indice % CORES_TIME.length] }}>
-                    <header>
-                      <h3>{time.nome}</h3>
-                      <span>{time.jogadores.length} jogadores</span>
-                    </header>
-                    <ul>
-                      {time.jogadores.map((jogador) => (
-                        <li key={jogador.chave}>
-                          <span className="selo pequeno" style={{ "--nivel": jogador.nivel }}>
-                            {jogador.nivel}
-                          </span>
-                          <span className="nome-jogador">{jogador.nome}</span>
-                          <span className="nivel-texto">nível {jogador.nivel}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <footer>
-                      <div>
-                        <small>Soma</small>
-                        <strong>{time.soma}</strong>
-                      </div>
-                      <div>
-                        <small>Média</small>
-                        <strong>{formatarMedia(time.media)}</strong>
-                      </div>
-                    </footer>
-                  </article>
-                ))}
-              </div>
-              <Estatisticas rodada={exibido} />
-              {historico.some((item) => item.id === exibido.id) && (
-                <button
-                  type="button"
-                  className="botao perigo"
-                  onClick={() => confirmarExcluir(exibido, historico.findIndex((item) => item.id === exibido.id) + 1)}
-                >
-                  Excluir este sorteio
-                </button>
-              )}
-            </>
-          ) : (
-            <div className="vazio">
-              <p>Nenhum sorteio nesta rodada.</p>
-              <span>Cadastre os nomes e clique em Sortear times. Cada time fica com os níveis de 1 a {niveis}.</span>
-            </div>
-          )}
-
-          <Historico
-            historico={historico}
-            selecionadoId={exibido?.id}
-            aoSelecionar={mostrarRodada}
-            aoExcluir={confirmarExcluir}
-          />
-        </section>
+        <div className="resultado-inicio">{painel}</div>
       </main>
+            </>
+          }
+        />
+      </Routes>
 
       {modal && (
         <div className="cortina" role="dialog" aria-modal="true" aria-labelledby="titulo-modal">
@@ -439,6 +391,118 @@ export default function App() {
         </div>
       )}
     </div>
+  );
+}
+
+function PainelSorteios({
+  historico,
+  exibido,
+  timesExibidos,
+  niveisExibidos,
+  times,
+  niveis,
+  aviso,
+  configMudou,
+  indiceExibido,
+  aoMudarRodada,
+  aoExcluir,
+  aoSelecionar,
+}) {
+  return (
+    <section className="painel resultado">
+      <div className="cabeca-resultado">
+        <div>
+          <h2>Times da rodada</h2>
+          <p>{exibido ? `${timesExibidos} times · ${niveisExibidos} níveis` : `${times} times`}</p>
+        </div>
+        <div className="contador" aria-live="polite">
+          <strong>{historico.length}</strong>
+          <span>{historico.length === 1 ? "sorteio realizado" : "sorteios realizados"}</span>
+        </div>
+      </div>
+
+      {aviso && <p className="aviso">{aviso}</p>}
+      {exibido && historico.length > 0 && (
+        <div className="nav-sorteio">
+          <button type="button" onClick={() => aoMudarRodada(-1)} disabled={indiceExibido <= 0}>
+            Anterior
+          </button>
+          <span>
+            Sorteio {indiceExibido + 1} de {historico.length}
+          </span>
+          <button
+            type="button"
+            onClick={() => aoMudarRodada(1)}
+            disabled={indiceExibido < 0 || indiceExibido >= historico.length - 1}
+          >
+            Próximo
+          </button>
+        </div>
+      )}
+      {configMudou && (
+        <p className="nota">
+          Configuração deste sorteio: {timesExibidos} times e {niveisExibidos} níveis. A quantidade ao lado vale para o próximo.
+        </p>
+      )}
+
+      {exibido ? (
+        <>
+          <div className="times" key={exibido.id}>
+            {exibido.timesSorteados.map((time, indice) => (
+              <article key={time.nome} className="cartao-time" style={{ "--cor": CORES_TIME[indice % CORES_TIME.length] }}>
+                <header>
+                  <h3>{time.nome}</h3>
+                  <span>{time.jogadores.length} jogadores</span>
+                </header>
+                <ul>
+                  {time.jogadores.map((jogador) => (
+                    <li key={jogador.chave}>
+                      <span className="selo pequeno" style={{ "--nivel": jogador.nivel }}>
+                        {jogador.nivel}
+                      </span>
+                      <span className="nome-jogador">{jogador.nome}</span>
+                      <span className="nivel-texto">nível {jogador.nivel}</span>
+                    </li>
+                  ))}
+                </ul>
+                <footer>
+                  <div>
+                    <small>Soma</small>
+                    <strong>{time.soma}</strong>
+                  </div>
+                  <div>
+                    <small>Média</small>
+                    <strong>{formatarMedia(time.media)}</strong>
+                  </div>
+                </footer>
+              </article>
+            ))}
+          </div>
+          <Estatisticas rodada={exibido} />
+          {historico.some((item) => item.id === exibido.id) && (
+            <button
+              type="button"
+              className="botao perigo"
+              onClick={() => aoExcluir(exibido, historico.findIndex((item) => item.id === exibido.id) + 1)}
+            >
+              Excluir este sorteio
+            </button>
+          )}
+        </>
+      ) : (
+        <div className="vazio">
+          <p>Nenhum sorteio nesta rodada.</p>
+          <span>Cadastre os nomes e clique em Sortear times. Cada time fica com os níveis de 1 a {niveis}.</span>
+        </div>
+      )}
+
+      <Historico
+        historico={historico}
+        selecionadoId={exibido?.id}
+        aoSelecionar={aoSelecionar}
+        aoExcluir={aoExcluir}
+      />
+    </section>
   );
 }
 

@@ -67,8 +67,6 @@ h1 {
 
 .subtitulo { max-width: 58ch; margin: 12px 0 0; line-height: 1.5; }
 
-.modalidades { display: flex; flex-wrap: wrap; gap: 8px; }
-
 .chip, .botao, .passo button {
   border: 1px solid var(--linha);
   background: rgba(255, 255, 255, 0.03);
@@ -76,8 +74,9 @@ h1 {
   cursor: pointer;
 }
 
-.chip { padding: 8px 14px; color: var(--mudo); }
-.chip.ativo { color: #08211c; background: var(--acento); border-color: transparent; font-weight: 700; }
+.meus-sorteios { display: none; text-decoration: none; }
+.topo-sorteios { align-items: center; }
+.voltar { display: inline-flex; text-decoration: none; align-items: center; }
 
 .grade {
   display: grid;
@@ -259,6 +258,7 @@ h1 {
 .cartao-time footer strong { display: block; font-size: 1.25rem; }
 
 .estatisticas { margin-top: 14px; font-size: 0.92rem; }
+.resultado { scroll-margin-top: 76px; }
 .resultado > .botao.perigo { margin-top: 12px; }
 .estatisticas ul { margin: 8px 0 0; padding-left: 18px; }
 
@@ -321,4 +321,29 @@ h1 {
   .config { display: grid; grid-template-columns: 1fr 1fr; }
   .resumo-config { grid-column: 1 / -1; }
   .contador { text-align: left; }
+  .meus-sorteios {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    margin: 0 0 14px;
+    position: sticky;
+    top: 10px;
+    z-index: 4;
+    background: var(--ouro);
+    color: #241b08;
+    border-color: transparent;
+    font-weight: 800;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+  }
+  .meus-sorteios span {
+    min-width: 1.4rem;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: #241b08;
+    color: var(--ouro);
+    font-size: 0.8rem;
+  }
+  .resultado-inicio { display: none; }
 }
