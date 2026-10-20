@@ -1,21 +1,21 @@
-name: Publicar no GitHub Pages
+name: Atualizar pasta docs
 
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "docs/**"
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
-  group: pages
+  group: docs-site
   cancel-in-progress: true
 
 jobs:
-  build:
+  build-docs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,16 +25,20 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Atualizar pasta docs
+        run: |
+          rm -rf docs
+          mkdir docs
+          cp -r dist/. docs/
+          touch docs/.nojekyll
+      - name: Commit da pasta docs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs
+          if git diff --staged --quiet; then
+            echo "docs sem mudanças"
+            exit 0
+          fi
+          git commit -m "Atualiza site publicado em docs"
+          git push
