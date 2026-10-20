@@ -2,12 +2,6 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import Rodape from "../components/Rodape.jsx";
 
-/**
- * Destino só no env (build). Não é exibido na página.
- * No Vercel: VITE_CONTATO_EMAIL
- */
-const DESTINO = import.meta.env.VITE_CONTATO_EMAIL?.trim() || "";
-
 export default function Contato() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -18,11 +12,6 @@ export default function Contato() {
 
   async function enviar(evento) {
     evento.preventDefault();
-    if (!DESTINO) {
-      setSucesso(false);
-      setAviso("O formulário ainda não está configurado. Tente mais tarde.");
-      return;
-    }
     if (!nome.trim() || !email.trim() || !mensagem.trim()) {
       setSucesso(false);
       setAviso("Preencha nome, e-mail e mensagem.");
@@ -34,38 +23,19 @@ export default function Contato() {
     setSucesso(false);
 
     try {
-      const resposta = await fetch(`https://formsubmit.co/ajax/${DESTINO}`, {
+      const resposta = await fetch("/api/contato", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: nome.trim(),
+          nome: nome.trim(),
           email: email.trim(),
-          message: mensagem.trim(),
-          _subject: `Contato Sorteio de Times — ${nome.trim()}`,
-          _template: "table",
-          _captcha: "false",
+          mensagem: mensagem.trim(),
         }),
       });
-
       const dados = await resposta.json().catch(() => ({}));
-      const falhou =
-        !resposta.ok ||
-        dados.success === false ||
-        dados.success === "false";
-
-      if (falhou) {
-        const detalhe = String(dados.message || "");
-        if (/activate|confirm|verif|habilit/i.test(detalhe)) {
-          throw new Error(
-            "Confirme o e-mail de ativação do FormSubmit na sua caixa de entrada (e no spam) e tente de novo.",
-          );
-        }
-        throw new Error(detalhe || "Não foi possível enviar a mensagem agora.");
+      if (!resposta.ok || !dados.ok) {
+        throw new Error(dados.erro || "Não foi possível enviar a mensagem.");
       }
-
       setSucesso(true);
       setAviso("Mensagem enviada. Em breve respondemos no e-mail que você informou.");
       setNome("");

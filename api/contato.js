@@ -1,4 +1,5 @@
 const DESTINO = (process.env.CONTATO_EMAIL || process.env.VITE_CONTATO_EMAIL || "").trim();
+const RESEND_KEY = (process.env.RESEND_API_KEY || "").trim();
 
 async function obterCorpo(req) {
   if (req.body && typeof req.body === "object" && !Buffer.isBuffer(req.body)) {
@@ -19,65 +20,6 @@ async function obterCorpo(req) {
   return JSON.parse(bruto);
 }
 
-async function enviarComFormSubmit(destino, nome, email, mensagem) {
-  const corpo = new URLSearchParams({
-    name: nome,
-    email,
-    message: mensagem,
-    _subject: `Contato Sorteio de Times — ${nome}`,
-    _template: "table",
-    _captcha: "false",
-  });
-
-  const resposta = await fetch(`https://formsubmit.co/ajax/${destino}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Accept: "application/json",
-    },
-    body: corpo.toString(),
-  });
-
-  const texto = await resposta.text();
-  let dados = {};
-  try {
-    dados = JSON.parse(texto);
-  } catch {
-    dados = { message: texto.slice(0, 200) };
-  }
-
-  const sucesso =
-    resposta.ok &&
-    dados.success !== false &&
-    dados.success !== "false" &&
-    !/invalid json/i.test(String(dados.message || ""));
-
-  return { sucesso, dados, status: resposta.status };
-}
-
-async function enviarComResend(destino, nome, email, mensagem) {
-  const chave = process.env.RESEND_API_KEY?.trim();
-  if (!chave) return null;
-
-  const resposta = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${chave}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: "Sorteio de Times <onboarding@resend.dev>",
-      to: [destino],
-      reply_to: email,
-      subject: `Contato Sorteio de Times — ${nome}`,
-      text: `Nome: ${nome}\nE-mail: ${email}\n\n${mensagem}`,
-    }),
-  });
-
-  const dados = await resposta.json().catch(() => ({}));
-  return { sucesso: resposta.ok, dados, status: resposta.status };
-}
-
 export default async function handler(req, res) {
   if (req.method === "OPTIONS") {
     res.status(204).end();
@@ -90,7 +32,18 @@ export default async function handler(req, res) {
   }
 
   if (!DESTINO) {
-    res.status(500).json({ ok: false, erro: "E-mail de destino não configurado no servidor." });
+    res.status(500).json({
+      ok: false,
+      erro: "E-mail de destino não configurado (CONTATO_EMAIL).",
+    });
+    return;
+  }
+
+  if (!RESEND_KEY) {
+    res.status(500).json({
+      ok: false,
+      erro: "Envio ainda não configurado (falta RESEND_API_KEY no Vercel).",
+    });
     return;
   }
 
@@ -105,27 +58,31 @@ export default async function handler(req, res) {
       return;
     }
 
-    const viaResend = await enviarComResend(DESTINO, nome, email, mensagem);
-    if (viaResend?.sucesso) {
-      res.status(200).json({ ok: true });
-      return;
-    }
-
-    const viaForm = await enviarComFormSubmit(DESTINO, nome, email, mensagem);
-    if (viaForm.sucesso) {
-      res.status(200).json({ ok: true });
-      return;
-    }
-
-    const detalhe = String(viaForm.dados?.message || viaResend?.dados?.message || "");
-    const precisaAtivar = /activate|confirm|habilit|verif/i.test(detalhe);
-
-    res.status(502).json({
-      ok: false,
-      erro: precisaAtivar
-        ? "Abra seu Hotmail e confirme o e-mail de ativação do FormSubmit (veja também o spam). Depois tente de novo."
-        : detalhe || "Não foi possível enviar a mensagem agora. Tente novamente em alguns minutos.",
+    const resposta = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${RESEND_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: "Sorteio de Times <onboarding@resend.dev>",
+        to: [DESTINO],
+        reply_to: email,
+        subject: `Contato Sorteio de Times — ${nome}`,
+        text: `Nome: ${nome}\nE-mail: ${email}\n\n${mensagem}`,
+      }),
     });
+
+    const dados = await resposta.json().catch(() => ({}));
+    if (!resposta.ok) {
+      res.status(502).json({
+        ok: false,
+        erro: dados.message || "Falha ao enviar pelo serviço de e-mail.",
+      });
+      return;
+    }
+
+    res.status(200).json({ ok: true });
   } catch (erro) {
     res.status(500).json({
       ok: false,
