@@ -58,15 +58,41 @@ function Aplicacao() {
   const [modal, setModal] = useState(null);
   const arquivoRef = useRef(null);
   const pronto = useRef(false);
+  const estadoRef = useRef({ modalidade, times, niveis, jogadores, historico, atual });
   const navigate = useNavigate();
+
+  estadoRef.current = { modalidade, times, niveis, jogadores, historico, atual };
+
+  function persistir(parcial = {}) {
+    const proximo = { ...estadoRef.current, ...parcial };
+    estadoRef.current = proximo;
+    salvarEstado(proximo);
+  }
 
   useEffect(() => {
     if (!pronto.current) {
       pronto.current = true;
       return;
     }
-    salvarEstado({ modalidade, times, niveis, jogadores, historico, atual });
+    persistir();
   }, [modalidade, times, niveis, jogadores, historico, atual]);
+
+  useEffect(() => {
+    function flush() {
+      salvarEstado(estadoRef.current);
+    }
+
+    function aoEsconder() {
+      if (document.visibilityState === "hidden") flush();
+    }
+
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", aoEsconder);
+    return () => {
+      window.removeEventListener("pagehide", flush);
+      document.removeEventListener("visibilitychange", aoEsconder);
+    };
+  }, []);
 
   const duplicadas = useMemo(() => chavesDuplicadas(jogadores), [jogadores]);
   const equilibrio = equilibrioEsperado(niveis);
@@ -119,8 +145,10 @@ function Aplicacao() {
 
     const { sortearTimes } = await import("./lib/draw.js");
     const rodada = sortearTimes(jogadores, times, niveis, historico);
+    const novoHistorico = [...historico, rodada];
     setAtual(rodada);
-    setHistorico((lista) => [...lista, rodada]);
+    setHistorico(novoHistorico);
+    persistir({ historico: novoHistorico, atual: rodada });
     setAviso("Times sorteados. A formação foi escolhida entre as combinações com menos repetição.");
     setOcupado(false);
     if (window.matchMedia("(max-width: 900px)").matches) {
@@ -138,8 +166,10 @@ function Aplicacao() {
           rotulo: "Manter histórico",
           tipo: "secundario",
           aoClicar: () => {
-            setJogadores(montarElenco(times, niveis));
+            const ficha = montarElenco(times, niveis);
+            setJogadores(ficha);
             setAtual(null);
+            persistir({ jogadores: ficha, atual: null });
             setErros([]);
             setAviso("Ficha limpa. O histórico das rodadas foi mantido.");
             setModal(null);
@@ -149,9 +179,11 @@ function Aplicacao() {
           rotulo: "Apagar histórico",
           tipo: "perigo",
           aoClicar: () => {
-            setJogadores(montarElenco(times, niveis));
+            const ficha = montarElenco(times, niveis);
+            setJogadores(ficha);
             setHistorico([]);
             setAtual(null);
+            persistir({ jogadores: ficha, historico: [], atual: null });
             setErros([]);
             setAviso("Ficha e histórico foram zerados.");
             setModal(null);
@@ -172,10 +204,10 @@ function Aplicacao() {
           tipo: "perigo",
           aoClicar: () => {
             const restante = historico.filter((item) => item.id !== rodada.id);
+            const proximoAtual = atual?.id === rodada.id ? (restante[restante.length - 1] ?? null) : atual;
             setHistorico(restante);
-            if (atual?.id === rodada.id) {
-              setAtual(restante[restante.length - 1] ?? null);
-            }
+            setAtual(proximoAtual);
+            persistir({ historico: restante, atual: proximoAtual });
             setAviso(`Sorteio ${numero} excluído.`);
             setModal(null);
           },
@@ -195,6 +227,7 @@ function Aplicacao() {
           tipo: "perigo",
           aoClicar: () => {
             setHistorico([]);
+            persistir({ historico: [] });
             setAviso("Histórico limpo. O próximo sorteio não terá rodadas anteriores para comparar.");
             setModal(null);
           },
@@ -216,6 +249,7 @@ function Aplicacao() {
       setJogadores(estado.jogadores);
       setHistorico(estado.historico);
       setAtual(estado.atual);
+      persistir(estado);
       setErros([]);
       setAviso(`Histórico carregado: ${estado.historico.length} rodada(s).`);
     } catch (erro) {
