@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { HashRouter, Link, Route, Routes, useNavigate } from "react-router-dom";
 import AdSense from "./components/AdSense.jsx";
+import ConteudoAjuda from "./components/ConteudoAjuda.jsx";
+import Rodape from "./components/Rodape.jsx";
 import {
   chavesDuplicadas,
   chaveJogador,
@@ -11,6 +13,8 @@ import {
 } from "./lib/players.js";
 import { baixarJson, carregarEstado, lerArquivoJson, salvarEstado } from "./lib/storage.js";
 import Privacidade from "./pages/Privacidade.jsx";
+import Sobre from "./pages/Sobre.jsx";
+import Termos from "./pages/Termos.jsx";
 
 const CORES_TIME = ["#3dd6c6", "#f0c14a", "#ff8b6a", "#7aa2ff", "#c084fc", "#86efac", "#fb7185", "#67e8f9", "#fdba74", "#a3e635"];
 
@@ -236,6 +240,8 @@ function Aplicacao() {
     <div className="pagina">
       <Routes>
         <Route path="/privacidade" element={<Privacidade />} />
+        <Route path="/sobre" element={<Sobre />} />
+        <Route path="/termos" element={<Termos />} />
         <Route
           path="/sorteios"
           element={
@@ -250,9 +256,7 @@ function Aplicacao() {
                 </Link>
               </header>
               {painel}
-              <p className="rodape-legal">
-                <Link to="/privacidade">Privacidade</Link>
-              </p>
+              <Rodape />
             </>
           }
         />
@@ -266,6 +270,7 @@ function Aplicacao() {
           <h1>Sorteio de Times</h1>
           <p className="subtitulo">
             Cada time recebe um jogador de cada nível. O sorteio guarda as rodadas e evita repetir os mesmos companheiros.
+            Ideal para futebol, futsal e jogos eletrônicos entre amigos.
           </p>
         </div>
       </header>
@@ -377,9 +382,8 @@ function Aplicacao() {
 
         <div className="resultado-inicio">{painel}</div>
       </main>
-              <p className="rodape-legal">
-                <Link to="/privacidade">Privacidade</Link>
-              </p>
+              <ConteudoAjuda />
+              <Rodape />
             </>
           }
         />

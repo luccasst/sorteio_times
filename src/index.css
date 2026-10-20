@@ -287,12 +287,40 @@ h1 {
 }
 .privacidade .texto-legal a { color: var(--acento); }
 .rodape-legal {
-  margin-top: 18px;
+  margin-top: 22px;
   text-align: center;
-}
-.rodape-legal a {
   color: var(--mudo);
   font-size: 0.85rem;
+}
+.rodape-legal nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 8px;
+}
+.rodape-legal a { color: var(--acento); text-decoration: none; }
+.rodape-legal p { margin: 0; }
+
+.ajuda {
+  margin-top: 18px;
+  line-height: 1.55;
+}
+.ajuda h2, .ajuda h3, .pagina-texto h2 {
+  margin: 0 0 10px;
+  color: var(--texto);
+}
+.ajuda h3 { margin-top: 18px; font-size: 1rem; }
+.ajuda p, .ajuda li, .ajuda dd { color: var(--mudo); }
+.ajuda ol { margin: 0; padding-left: 18px; }
+.faq { margin: 0; }
+.faq > div { margin-top: 12px; }
+.faq dt { font-weight: 700; color: var(--texto); margin-bottom: 4px; }
+.faq dd { margin: 0; }
+
+.pagina-texto .texto-legal h2 {
+  margin-top: 18px;
+  font-size: 1.05rem;
 }
 .estatisticas ul { margin: 8px 0 0; padding-left: 18px; }
 
