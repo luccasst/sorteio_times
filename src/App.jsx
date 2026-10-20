@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { HashRouter, Link, Route, Routes, useNavigate } from "react-router-dom";
+import AdSense from "./components/AdSense.jsx";
 import {
   chavesDuplicadas,
   chaveJogador,
@@ -9,6 +10,7 @@ import {
   validarElenco,
 } from "./lib/players.js";
 import { baixarJson, carregarEstado, lerArquivoJson, salvarEstado } from "./lib/storage.js";
+import Privacidade from "./pages/Privacidade.jsx";
 
 const CORES_TIME = ["#3dd6c6", "#f0c14a", "#ff8b6a", "#7aa2ff", "#c084fc", "#86efac", "#fb7185", "#67e8f9", "#fdba74", "#a3e635"];
 
@@ -233,6 +235,7 @@ function Aplicacao() {
   return (
     <div className="pagina">
       <Routes>
+        <Route path="/privacidade" element={<Privacidade />} />
         <Route
           path="/sorteios"
           element={
@@ -247,6 +250,9 @@ function Aplicacao() {
                 </Link>
               </header>
               {painel}
+              <p className="rodape-legal">
+                <Link to="/privacidade">Privacidade</Link>
+              </p>
             </>
           }
         />
@@ -371,6 +377,9 @@ function Aplicacao() {
 
         <div className="resultado-inicio">{painel}</div>
       </main>
+              <p className="rodape-legal">
+                <Link to="/privacidade">Privacidade</Link>
+              </p>
             </>
           }
         />
@@ -480,6 +489,7 @@ function PainelSorteios({
             ))}
           </div>
           <Estatisticas rodada={exibido} />
+          <AdSense chave={exibido.id} />
           {historico.some((item) => item.id === exibido.id) && (
             <button
               type="button"

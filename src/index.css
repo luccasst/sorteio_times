@@ -260,6 +260,40 @@ h1 {
 .estatisticas { margin-top: 14px; font-size: 0.92rem; }
 .resultado { scroll-margin-top: 76px; }
 .resultado > .botao.perigo { margin-top: 12px; }
+
+.anuncio {
+  margin-top: 16px;
+  min-height: 100px;
+  border: 1px dashed var(--linha);
+  border-radius: 16px;
+  padding: 10px;
+  overflow: hidden;
+}
+.anuncio-demo {
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  text-align: center;
+  color: var(--mudo);
+  font-size: 0.85rem;
+  background: rgba(0, 0, 0, 0.18);
+}
+.anuncio-demo p { margin: 0; font-weight: 700; color: var(--texto); }
+
+.privacidade .texto-legal {
+  padding: 8px 4px 18px;
+  line-height: 1.6;
+  color: var(--mudo);
+}
+.privacidade .texto-legal a { color: var(--acento); }
+.rodape-legal {
+  margin-top: 18px;
+  text-align: center;
+}
+.rodape-legal a {
+  color: var(--mudo);
+  font-size: 0.85rem;
+}
 .estatisticas ul { margin: 8px 0 0; padding-left: 18px; }
 
 .vazio { padding: 28px 8px 12px; }
