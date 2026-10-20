@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { HashRouter, Link, Route, Routes, useNavigate } from "react-router-dom";
+import { BrowserRouter, Link, Route, Routes, useNavigate } from "react-router-dom";
 import AdSense from "./components/AdSense.jsx";
 import ConteudoAjuda from "./components/ConteudoAjuda.jsx";
 import Rodape from "./components/Rodape.jsx";
@@ -37,9 +37,9 @@ function formatarData(iso) {
 
 export default function App() {
   return (
-    <HashRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, "") || undefined}>
       <Aplicacao />
-    </HashRouter>
+    </BrowserRouter>
   );
 }
 
