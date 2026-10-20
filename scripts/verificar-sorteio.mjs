@@ -1,5 +1,5 @@
-import { equilibrioEsperado, sortearTimes } from "../src/lib/draw.js";
-import { montarElenco, preencherExemplo, validarElenco } from "../src/lib/players.js";
+import { sortearTimes } from "../src/lib/draw.js";
+import { equilibrioEsperado, montarElenco, preencherExemplo, validarElenco } from "../src/lib/players.js";
 
 function assert(condicao, mensagem) {
   if (!condicao) throw new Error(mensagem);

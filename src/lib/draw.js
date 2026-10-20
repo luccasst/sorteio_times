@@ -466,9 +466,3 @@ export class SorteadorEquilibrado {
 export function sortearTimes(jogadores, times, niveis, historico) {
   return new SorteadorEquilibrado(historico).sortear(jogadores, times, niveis);
 }
-
-/** Soma e média esperadas quando cada time recebe os níveis 1..N uma vez. */
-export function equilibrioEsperado(niveis) {
-  const soma = (niveis * (niveis + 1)) / 2;
-  return { soma, media: soma / niveis };
-}

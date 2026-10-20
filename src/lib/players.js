@@ -92,6 +92,12 @@ export function validarElenco(jogadores, times, niveis) {
   return erros;
 }
 
+/** Soma e média quando cada time recebe os níveis 1..N uma vez. */
+export function equilibrioEsperado(niveis) {
+  const soma = (niveis * (niveis + 1)) / 2;
+  return { soma, media: soma / niveis };
+}
+
 export function chavesDuplicadas(jogadores) {
   const contagem = new Map();
   for (const jogador of jogadores) {

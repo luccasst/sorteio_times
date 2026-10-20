@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { HashRouter, Link, Route, Routes, useNavigate } from "react-router-dom";
-import { equilibrioEsperado, sortearTimes } from "./lib/draw.js";
 import {
   chavesDuplicadas,
   chaveJogador,
+  equilibrioEsperado,
   montarElenco,
   preencherExemplo,
   validarElenco,
@@ -107,6 +107,7 @@ function Aplicacao() {
     setErros([]);
     await esperarQuadro();
 
+    const { sortearTimes } = await import("./lib/draw.js");
     const rodada = sortearTimes(jogadores, times, niveis, historico);
     setAtual(rodada);
     setHistorico((lista) => [...lista, rodada]);
