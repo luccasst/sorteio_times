@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { BrowserRouter, Link, Route, Routes, useNavigate } from "react-router-dom";
+import { HashRouter, Link, Route, Routes, useNavigate } from "react-router-dom";
 import { equilibrioEsperado, sortearTimes } from "./lib/draw.js";
 import {
   chavesDuplicadas,
@@ -29,9 +29,9 @@ function formatarData(iso) {
 
 export default function App() {
   return (
-    <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+    <HashRouter>
       <Aplicacao />
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
