@@ -12,6 +12,8 @@ import {
   validarElenco,
 } from "./lib/players.js";
 import { baixarJson, carregarEstado, lerArquivoJson, salvarEstado } from "./lib/storage.js";
+import Artigo from "./pages/Artigo.jsx";
+import Blog from "./pages/Blog.jsx";
 import Privacidade from "./pages/Privacidade.jsx";
 import Sobre from "./pages/Sobre.jsx";
 import Termos from "./pages/Termos.jsx";
@@ -242,6 +244,8 @@ function Aplicacao() {
         <Route path="/privacidade" element={<Privacidade />} />
         <Route path="/sobre" element={<Sobre />} />
         <Route path="/termos" element={<Termos />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:slug" element={<Artigo />} />
         <Route
           path="/sorteios"
           element={

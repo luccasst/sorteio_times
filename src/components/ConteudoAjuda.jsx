@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function ConteudoAjuda() {
   return (
     <section className="painel ajuda" aria-labelledby="titulo-ajuda">
@@ -44,6 +46,10 @@ export default function ConteudoAjuda() {
           </dd>
         </div>
       </dl>
+
+      <p className="ajuda-blog">
+        Quer mais dicas de organização? Confira o <Link to="/blog">blog da pelada equilibrada</Link>.
+      </p>
     </section>
   );
 }

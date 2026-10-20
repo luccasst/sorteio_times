@@ -28,7 +28,9 @@ export default function Sobre() {
           companheiros para que as mesmas duplas não se repitam o tempo todo.
         </p>
         <p>
-          O site pode exibir anúncios do Google AdSense para ajudar a manter a ferramenta no ar. Veja também a{" "}
+          Além da ferramenta, publicamos um <Link to="/blog">blog</Link> com guias sobre organização de
+          rachas, equilíbrio de times e dicas de pelada. O site pode exibir anúncios do Google AdSense para
+          ajudar a manter o projeto no ar. Veja também a{" "}
           <Link to="/privacidade">política de privacidade</Link> e os{" "}
           <Link to="/termos">termos de uso</Link>.
         </p>
