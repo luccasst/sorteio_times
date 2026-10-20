@@ -2,32 +2,51 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import Rodape from "../components/Rodape.jsx";
 
-/** Defina no Vercel: VITE_CONTATO_EMAIL=seu@email.com */
-const EMAIL = import.meta.env.VITE_CONTATO_EMAIL?.trim() || "";
-
 export default function Contato() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [mensagem, setMensagem] = useState("");
   const [aviso, setAviso] = useState("");
+  const [enviando, setEnviando] = useState(false);
+  const [sucesso, setSucesso] = useState(false);
 
-  function enviar(evento) {
+  async function enviar(evento) {
     evento.preventDefault();
-    if (!EMAIL) {
-      setAviso("O e-mail de contato ainda não foi configurado no site. Tente novamente em breve.");
-      return;
-    }
     if (!nome.trim() || !email.trim() || !mensagem.trim()) {
       setAviso("Preencha nome, e-mail e mensagem.");
+      setSucesso(false);
       return;
     }
 
-    const assunto = encodeURIComponent(`Contato Sorteio de Times — ${nome.trim()}`);
-    const corpo = encodeURIComponent(
-      `Nome: ${nome.trim()}\nE-mail: ${email.trim()}\n\n${mensagem.trim()}`,
-    );
-    window.location.href = `mailto:${EMAIL}?subject=${assunto}&body=${corpo}`;
-    setAviso("Se o aplicativo de e-mail não abrir, escreva diretamente para o endereço exibido abaixo.");
+    setEnviando(true);
+    setAviso("");
+    setSucesso(false);
+
+    try {
+      const resposta = await fetch("/api/contato", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nome: nome.trim(),
+          email: email.trim(),
+          mensagem: mensagem.trim(),
+        }),
+      });
+      const dados = await resposta.json().catch(() => ({}));
+      if (!resposta.ok || !dados.ok) {
+        throw new Error(dados.erro || "Não foi possível enviar a mensagem.");
+      }
+      setSucesso(true);
+      setAviso("Mensagem enviada. Em breve respondemos no e-mail que você informou.");
+      setNome("");
+      setEmail("");
+      setMensagem("");
+    } catch (erro) {
+      setSucesso(false);
+      setAviso(erro instanceof Error ? erro.message : "Erro ao enviar. Tente de novo em instantes.");
+    } finally {
+      setEnviando(false);
+    }
   }
 
   return (
@@ -53,7 +72,13 @@ export default function Contato() {
         <form className="form-contato" onSubmit={enviar}>
           <label>
             Nome
-            <input value={nome} onChange={(e) => setNome(e.target.value)} maxLength={80} required />
+            <input
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              maxLength={80}
+              required
+              disabled={enviando}
+            />
           </label>
           <label>
             Seu e-mail
@@ -63,6 +88,7 @@ export default function Contato() {
               onChange={(e) => setEmail(e.target.value)}
               maxLength={120}
               required
+              disabled={enviando}
             />
           </label>
           <label>
@@ -73,11 +99,12 @@ export default function Contato() {
               rows={6}
               maxLength={2000}
               required
+              disabled={enviando}
             />
           </label>
-          {aviso ? <p className="aviso">{aviso}</p> : null}
-          <button type="submit" className="botao principal">
-            Enviar mensagem
+          {aviso ? <p className={sucesso ? "aviso" : "alerta"}>{aviso}</p> : null}
+          <button type="submit" className="botao principal" disabled={enviando}>
+            {enviando ? "Enviando..." : "Enviar mensagem"}
           </button>
         </form>
       </article>
