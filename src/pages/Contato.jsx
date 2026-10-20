@@ -48,11 +48,6 @@ export default function Contato() {
             Dúvidas sobre o Sorteio de Times, sugestões para o blog ou assuntos relacionados ao site:
             use o formulário abaixo. Respondemos pelo e-mail informado na mensagem.
           </p>
-          {EMAIL ? (
-            <p>
-              E-mail: <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
-            </p>
-          ) : null}
         </div>
 
         <form className="form-contato" onSubmit={enviar}>
