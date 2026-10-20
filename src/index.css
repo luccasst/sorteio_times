@@ -496,6 +496,11 @@ h1 {
 }
 .modal p { color: var(--mudo); line-height: 1.5; }
 .modal-acoes { justify-content: flex-end; }
+.modal-sucesso {
+  width: min(380px, 100%);
+  text-align: left;
+}
+.modal-sucesso h2 { color: var(--acento); }
 
 @keyframes subir {
   from { opacity: 0; transform: translateY(10px); }

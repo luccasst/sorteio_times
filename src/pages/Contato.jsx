@@ -8,19 +8,17 @@ export default function Contato() {
   const [mensagem, setMensagem] = useState("");
   const [aviso, setAviso] = useState("");
   const [enviando, setEnviando] = useState(false);
-  const [sucesso, setSucesso] = useState(false);
+  const [modalSucesso, setModalSucesso] = useState(false);
 
   async function enviar(evento) {
     evento.preventDefault();
     if (!nome.trim() || !email.trim() || !mensagem.trim()) {
-      setSucesso(false);
       setAviso("Preencha nome, e-mail e mensagem.");
       return;
     }
 
     setEnviando(true);
     setAviso("");
-    setSucesso(false);
 
     try {
       const resposta = await fetch("/api/contato", {
@@ -36,13 +34,11 @@ export default function Contato() {
       if (!resposta.ok || !dados.ok) {
         throw new Error(dados.erro || "Não foi possível enviar a mensagem.");
       }
-      setSucesso(true);
-      setAviso("Mensagem enviada. Em breve respondemos no e-mail que você informou.");
       setNome("");
       setEmail("");
       setMensagem("");
+      setModalSucesso(true);
     } catch (erro) {
-      setSucesso(false);
       setAviso(erro instanceof Error ? erro.message : "Erro ao enviar. Tente de novo em instantes.");
     } finally {
       setEnviando(false);
@@ -102,13 +98,33 @@ export default function Contato() {
               disabled={enviando}
             />
           </label>
-          {aviso ? <p className={sucesso ? "aviso" : "alerta"}>{aviso}</p> : null}
+          {aviso ? <p className="alerta">{aviso}</p> : null}
           <button type="submit" className="botao principal" disabled={enviando}>
             {enviando ? "Enviando..." : "Enviar mensagem"}
           </button>
         </form>
       </article>
       <Rodape />
+
+      {modalSucesso && (
+        <div
+          className="cortina"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="titulo-sucesso-contato"
+          onClick={() => setModalSucesso(false)}
+        >
+          <div className="modal modal-sucesso" onClick={(evento) => evento.stopPropagation()}>
+            <h2 id="titulo-sucesso-contato">Mensagem enviada</h2>
+            <p>Em breve respondemos no e-mail que você informou.</p>
+            <div className="acoes modal-acoes">
+              <button type="button" className="botao principal" onClick={() => setModalSucesso(false)}>
+                Ok
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
