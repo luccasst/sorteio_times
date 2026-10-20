@@ -29,6 +29,7 @@ jobs:
           GITHUB_PAGES: "true"
           VITE_ADSENSE_CLIENT: ${{ secrets.VITE_ADSENSE_CLIENT }}
           VITE_ADSENSE_SLOT: ${{ secrets.VITE_ADSENSE_SLOT }}
+          VITE_CONTATO_EMAIL: ${{ secrets.VITE_CONTATO_EMAIL }}
         run: npm run build
       - name: Atualizar pasta docs
         run: |

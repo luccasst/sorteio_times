@@ -326,6 +326,65 @@ h1 {
 .ajuda-blog { margin-top: 18px; }
 .ajuda-blog a { color: var(--acento); }
 
+.menu-topo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 18px;
+}
+.menu-link {
+  border: 1px solid var(--linha);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 999px;
+  padding: 8px 14px;
+  color: var(--mudo);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.menu-link.ativo,
+.menu-link.destaque {
+  color: #08211c;
+  background: var(--acento);
+  border-color: transparent;
+}
+.menu-link.destaque {
+  background: var(--ouro);
+  color: #241b08;
+}
+
+.form-contato {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+  max-width: 520px;
+}
+.form-contato label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--mudo);
+}
+.form-contato input,
+.form-contato textarea {
+  border: 1px solid var(--linha);
+  background: #091611;
+  border-radius: 12px;
+  padding: 10px 12px;
+  color: var(--texto);
+  font: inherit;
+  outline: none;
+}
+.form-contato input:focus,
+.form-contato textarea:focus {
+  border-color: var(--acento);
+}
+.form-contato .botao.principal {
+  align-self: flex-start;
+}
+
 .blog-lista ul {
   list-style: none;
   margin: 0;

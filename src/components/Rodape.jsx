@@ -6,6 +6,7 @@ export default function Rodape() {
       <nav aria-label="Informações do site">
         <Link to="/blog">Blog</Link>
         <Link to="/sobre">Sobre</Link>
+        <Link to="/contato">Contato</Link>
         <Link to="/privacidade">Privacidade</Link>
         <Link to="/termos">Termos</Link>
       </nav>

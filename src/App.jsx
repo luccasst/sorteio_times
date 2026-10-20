@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { BrowserRouter, Link, Route, Routes, useNavigate } from "react-router-dom";
 import AdSense from "./components/AdSense.jsx";
 import ConteudoAjuda from "./components/ConteudoAjuda.jsx";
+import Menu from "./components/Menu.jsx";
 import Rodape from "./components/Rodape.jsx";
 import {
   chavesDuplicadas,
@@ -14,6 +15,7 @@ import {
 import { baixarJson, carregarEstado, lerArquivoJson, salvarEstado } from "./lib/storage.js";
 import Artigo from "./pages/Artigo.jsx";
 import Blog from "./pages/Blog.jsx";
+import Contato from "./pages/Contato.jsx";
 import Privacidade from "./pages/Privacidade.jsx";
 import Sobre from "./pages/Sobre.jsx";
 import Termos from "./pages/Termos.jsx";
@@ -240,10 +242,12 @@ function Aplicacao() {
 
   return (
     <div className="pagina">
+      <Menu />
       <Routes>
         <Route path="/privacidade" element={<Privacidade />} />
         <Route path="/sobre" element={<Sobre />} />
         <Route path="/termos" element={<Termos />} />
+        <Route path="/contato" element={<Contato />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/blog/:slug" element={<Artigo />} />
         <Route
